@@ -1,7 +1,11 @@
 package com.surya.api.gateway.service;
 
+import java.util.Date;
+import java.util.function.Function;
+
 import javax.crypto.SecretKey;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -22,16 +26,23 @@ public class JwtService {
 
     public boolean validateToken(String jwtToken) {
         try {
-            Jwts.parser()
-                .verifyWith(generateKey())
-                .build()
-                .parseSignedClaims(jwtToken); // Validates & parses
-            return true;
+            Date expDate = extractClaims(jwtToken, Claims::getExpiration); // Validates & parses
+            logger.info("Expiration Date: {}", expDate);
+            return expDate.after(new Date());
         } catch (JwtException e) {
             logger.error("Invalid JWT token: {}", e.getMessage());
             return false;
         }
     }
+
+	public <T> T extractClaims(String jwtToken, Function<Claims, T> claimsResolver) {
+		Claims claims = Jwts.parser()
+		    .verifyWith(generateKey())
+		    .build()
+		    .parseSignedClaims(jwtToken).getPayload();
+		logger.info("Claims from Token: {}", claims.toString());
+		return claimsResolver.apply(claims);
+	}
 
     private SecretKey generateKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
