@@ -29,8 +29,12 @@ public class JwtAuthenticationFilter implements GatewayFilter {
 	public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
 		String path = exchange.getRequest().getURI().getPath();
+		
+		logger.info("Path: {}", path);
 
-		if (path.contains("/auth/admin-login") || path.contains("/auth/customer-login")) {
+		if (path.contains("/auth/admin-login") || path.contains("/auth/customer-login")
+				|| path.contains("/admin-register") || path.contains("/customer-register")) {
+			logger.info("Exit Filter");
 			return chain.filter(exchange);
 		}
 
