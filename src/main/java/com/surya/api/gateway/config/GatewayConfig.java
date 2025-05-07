@@ -5,6 +5,8 @@ import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import jakarta.ws.rs.HttpMethod;
+
 @Configuration
 public class GatewayConfig {
 
@@ -33,10 +35,32 @@ public class GatewayConfig {
 						.path("/customer-register")
 						.filters(f -> f.rewritePath("/customer-register", "/customer/register"))
 						.uri("lb://USER-MANAGEMENT-SVC"))
-				.route("secure-routes", r -> r
-						.path("/**") // Secure everything else
-						.filters(f -> f.filter(jwtFilter))
+				.route("greet-customer",r -> r
+						.path("/greet-customer")
+						.filters(f -> f.rewritePath("/greet-customer", "/customer").filter(jwtFilter))
 						.uri("lb://USER-MANAGEMENT-SVC"))
+				.route("add-products", r -> r
+						.path("/add-products")
+						.filters(f -> f.rewritePath("/add-products", "/admin/add/products").filter(jwtFilter))
+						.uri("lb://PRODUCT-CATALOG-SVC"))
+				.route("update-product", r -> r
+						.path("/update-product")
+						.and()
+						.method(HttpMethod.PUT)
+						.filters(f -> f.rewritePath("/update-product", "/admin/product").filter(jwtFilter))
+						.uri("lb://PRODUCT-CATALOG-SVC"))
+				.route("get-products", r -> r
+						.path("/get-products")
+						.and()
+						.method(HttpMethod.GET)
+						.filters(f -> f.rewritePath("/get-products", "/user/products").filter(jwtFilter))
+						.uri("lb://PRODUCT-CATALOG-SVC"))
+				.route("remove-product", r -> r
+						.path("/remove-product/{Id}")
+						.and()
+						.method(HttpMethod.DELETE)
+						.filters(f -> f.rewritePath("/remove-product/(?<Id>.*)", "/admin/product/${Id}").filter(jwtFilter))
+						.uri("lb://PRODUCT-CATALOG-SVC"))
 				.build();
 	}
 }
