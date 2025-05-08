@@ -53,13 +53,19 @@ public class GatewayConfig {
 						.path("/get-products")
 						.and()
 						.method(HttpMethod.GET)
-						.filters(f -> f.rewritePath("/get-products", "/user/products").filter(jwtFilter))
+						.filters(f -> f.rewritePath("/get-products", "/user/products"))
 						.uri("lb://PRODUCT-CATALOG-SVC"))
 				.route("remove-product", r -> r
 						.path("/remove-product/{Id}")
 						.and()
 						.method(HttpMethod.DELETE)
 						.filters(f -> f.rewritePath("/remove-product/(?<Id>.*)", "/admin/product/${Id}").filter(jwtFilter))
+						.uri("lb://PRODUCT-CATALOG-SVC"))
+				.route("get-filter-products", r -> r
+						.path("/get-filter-products")
+						.and()
+						.method(HttpMethod.GET)
+						.filters(f -> f.rewritePath("/get-filter-products", "/user/filter/products"))
 						.uri("lb://PRODUCT-CATALOG-SVC"))
 				.build();
 	}

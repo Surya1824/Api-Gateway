@@ -33,7 +33,8 @@ public class JwtAuthenticationFilter implements GatewayFilter {
 		logger.info("Path: {}", path);
 
 		if (path.contains("/auth/admin-login") || path.contains("/auth/customer-login")
-				|| path.contains("/admin-register") || path.contains("/customer-register")) {
+				|| path.contains("/admin-register") || path.contains("/customer-register")
+				|| path.contains("/get-products") || path.contains("/get-filter-products")) {
 			logger.info("Exit Filter");
 			return chain.filter(exchange);
 		}
